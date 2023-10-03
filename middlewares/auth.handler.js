@@ -12,7 +12,6 @@ function checkApiKey(req, res, next) {
 }
 
 function checkAdminRole(req, res, next) {
-  console.log(req.user)
   const user = req.user;
   if(user.role === 'admin'){
     next();
@@ -21,4 +20,15 @@ function checkAdminRole(req, res, next) {
   }
 }
 
-module.exports = { checkApiKey, checkAdminRole }
+function checkRoles(...roles) {
+  return (req, res, next) => {
+    const user = req.user;
+    if(roles.includes(user.role)){
+      next();
+    } else {
+      next(boom.unauthorized());
+    }
+  }
+}
+
+module.exports = { checkApiKey, checkAdminRole, checkRoles }
