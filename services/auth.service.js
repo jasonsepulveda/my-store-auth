@@ -44,16 +44,16 @@ class AuthService {
       secure: true, // true for 465, false for other ports
       port: 465,
       auth: {
-        user: 'test.jslnp@gmail.com',
-        pass: 'eltq zdzh oimy kryt'
+        user: config.smtpEmail,
+        pass: config.smtpPassword,
       }
     });
     await transporter.sendMail({
-      from: 'test.jslnp@gmail.com', // sender address
-      to: `${user.email}`, // list of receivers
-      subject: "Este es un nuevo correo", // Subject line
-      text: "Hola santi", // plain text body
-      html: "<b>Hola santi</b>", // html body
+      from: config.smtpEmail,
+      to: `${user.email}`,
+      subject: "New Email from nodemailer",
+      text: "Hello world",
+      html: "<b>Hello world</b>",
     });
     return { message: 'email sent'}
   }
