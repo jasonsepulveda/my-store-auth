@@ -34,11 +34,26 @@ class AuthService {
     });
   }
 
-  async sendMail(email) {
+  async sendRecovery(email) {
     const user = await service.findByEmail(email);
     if (!user) {
       throw boom.unauthorized();
     }
+    const payload = { sub: user.id};
+    const token = jwt.sign(payload, config.jwtSecret, {expiresIn: '15min'});
+    const link = `http://myfrondend.com/recovery?token=${token}`;
+    await service.update(user.id, {recoveryToken: token});
+    const mail = {
+      from: config.smtpEmail,
+      to: `${user.email}`,
+      subject: "New Email from nodemailer - Password recovery",
+      html: `<b>click on => ${link}</b>`,
+    }
+    const rta = await this.sendMail(mail);
+    return rta;
+  }
+
+  async sendMail(infoMail) {
     const  transporter = nodemailer.createTransport({
       host: "smtp.gmail.com",
       secure: true, // true for 465, false for other ports
@@ -48,13 +63,7 @@ class AuthService {
         pass: config.smtpPassword,
       }
     });
-    await transporter.sendMail({
-      from: config.smtpEmail,
-      to: `${user.email}`,
-      subject: "New Email from nodemailer",
-      text: "Hello world",
-      html: "<b>Hello world</b>",
-    });
+    await transporter.sendMail(infoMail);
     return { message: 'email sent'}
   }
 }
